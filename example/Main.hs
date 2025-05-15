@@ -7,29 +7,20 @@ import Control.Concurrent
 import Data.String.Interpolate
 import System.FSNotify
 import System.FilePath
-import UnliftIO.Temporary
-
 
 main :: IO ()
 main = do
-  withSystemTempDirectory "fsnotify-foo" $ \dir -> do
-    putStrLn [i|Starting watch on dir: #{dir}|]
-
+    let dir = "/tmp/watched"
     let conf = defaultConfig
-
     withManagerConf conf $ \mgr -> do
-      stop <- watchDir mgr dir (const True) $ \ev -> do
+      putStrLn [i|Watching tree #{dir}|]
+      stop <- watchTree mgr dir (const True) $ \ev -> do
         putStrLn [i|Got event: #{ev}|]
+      putStrLn [i|Waiting 3s|]
       threadDelay 3_000_000
-
-      putStrLn [i|Writing to #{dir </> "bar"}|]
+      putStrLn [i|Writing #{dir}/bar|]
       writeFile (dir </> "bar") "asdf"
+      putStrLn [i|Waiting 3s|]
       threadDelay 3_000_000
-
-      putStrLn [i|Stopping|]
+      putStrLn [i|Stopping watch|]
       stop
-      putStrLn [i|Stopped|]
-      threadDelay 3_000_000
-
-    putStrLn [i|Exited withManagerConf|]
-    threadDelay 3_000_000
