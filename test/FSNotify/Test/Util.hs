@@ -30,7 +30,8 @@ import Data.Monoid
 
 #ifdef mingw32_HOST_OS
 import Data.Bits
-import System.Win32.File (getFileAttributes, setFileAttributes, fILE_ATTRIBUTE_TEMPORARY, createSymbolicLink)
+import System.Win32.File (getFileAttributes, setFileAttributes, fILE_ATTRIBUTE_TEMPORARY)
+import System.Win32.SymbolicLink (createSymbolicLinkFile)
 
 -- Perturb the file's attributes, to check that a modification event is emitted
 changeFileAttributes :: FilePath -> IO ()
@@ -39,7 +40,7 @@ changeFileAttributes file = do
   setFileAttributes file (attrs `xor` fILE_ATTRIBUTE_TEMPORARY)
 
 createSymLink :: FilePath -> FilePath -> IO ()
-createSymLink = createSymbolicLink
+createSymLink file1 file2 = createSymbolicLinkFile file1 file2 True
 #else
 import System.PosixCompat.Files (touchFile, createSymbolicLink)
 
